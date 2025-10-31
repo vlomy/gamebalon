@@ -161,7 +161,7 @@
                 const dist = Math.sqrt((clickX - balloon.x) ** 2 + (clickY - balloon.y) ** 2);
                 if (dist < balloon.radius) {
                     score++;
-                    scoreElement.textContent = `(TANTANGAN : PECAHKAN 12 BALON!)Skor: ${score}`;
+                    scoreElement.textContent = `Skor: ${score}`;
                     if (score === 10) { // Diubah dari 10 ke 12
                         explodeBalloon(balloon);
                         gameRunning = false;

@@ -1,1 +1,213 @@
-# gamebalon
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tangkap Balon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB; /* Awalnya langit biru, akan berubah ke hitam saat celebration */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 1s; /* Transisi halus untuk perubahan background */
+        }
+        #gameCanvas {
+            border: 2px solid #000;
+            background-color: #fff; /* Awalnya putih, akan berubah ke hitam */
+            cursor: crosshair;
+            transition: background-color 1s;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #000;
+        }
+        #celebration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+        }
+        #celebration img {
+            width: 200px;
+            height: 200px;
+            border: 1px #FFC0CB;
+            border-radius: 50%;
+        }
+        #celebration h1 {
+            color: #FF4500;
+            font-size: 48px;
+        }
+        #celebration p {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Skor: 0</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="celebration">
+        <img src="vita.jpg" alt="Kue"> <!-- Ganti dengan URL gambar kue asli jika ada -->
+        <h1>SELAMAT ULANG TAHUN🥳</h1>
+        <p>Doa terbaik buat kamu sayaaang, sehat selalu yaa cowo istimewaku🤍 i love you !!😍</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const celebration = document.getElementById('celebration');
+        const body = document.body;
+
+        let score = 0;
+        let balloons = [];
+        let stars = []; // Array untuk bintang
+        let gameRunning = true;
+        let starOpacity = 0.5; // Untuk animasi berkedip bintang
+        let opacityDirection = 1; // Arah perubahan opacity
+
+        // Fungsi untuk membuat balon baru dengan warna acak
+        function createBalloon() {
+            const x = Math.random() * (canvas.width - 50);
+            const y = -50;
+            const speed = Math.random() * 3 + 1;
+            const color = `hsl(${Math.random() * 360}, 70%, 60%)`; // Warna acak
+            balloons.push({ x, y, speed, radius: 25, color, stringLength: 50 + Math.random() * 50 }); // Tali panjang acak
+        }
+
+        // Fungsi untuk menggambar balon dengan tali
+        function drawBalloon(balloon) {
+            // Gambar tali (garis hitam dari bawah balon)
+            ctx.beginPath();
+            ctx.moveTo(balloon.x, balloon.y + balloon.radius);
+            ctx.lineTo(balloon.x, balloon.y + balloon.radius + balloon.stringLength);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Gambar balon
+            ctx.beginPath();
+            ctx.arc(balloon.x, balloon.y, balloon.radius, 0, Math.PI * 2);
+            ctx.fillStyle = balloon.color;
+            ctx.fill();
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+        }
+
+        // Fungsi untuk membuat bintang putih acak
+        function createStars() {
+            for (let i = 0; i < 100; i++) { // Buat 100 bintang
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 3 + 1; // Ukuran acak
+                const dx = (Math.random() - 0.5) * 0.5; // Kecepatan gerakan horizontal acak
+                const dy = (Math.random() - 0.5) * 0.5; // Kecepatan gerakan vertikal acak
+                stars.push({ x, y, size, dx, dy });
+            }
+        }
+
+        // Fungsi untuk menggambar dan menganimasi bintang
+        function drawStars() {
+            // Update opacity untuk berkedip
+            starOpacity += opacityDirection * 0.02;
+            if (starOpacity >= 1 || starOpacity <= 0.5) {
+                opacityDirection *= -1;
+            }
+
+            ctx.fillStyle = `rgba(255, 255, 255, ${starOpacity})`; // Opacity dinamis
+            stars.forEach(star => {
+                // Gerakan acak kecil
+                star.x += star.dx;
+                star.y += star.dy;
+                // Pastikan tidak keluar layar
+                if (star.x < 0 || star.x > canvas.width) star.dx *= -1;
+                if (star.y < 0 || star.y > canvas.height) star.dy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Fungsi untuk efek ledakan
+        function explodeBalloon(balloon) {
+            ctx.beginPath();
+            ctx.arc(balloon.x, balloon.y, balloon.radius * 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'orange';
+            ctx.fill();
+            setTimeout(() => {
+                balloons = balloons.filter(b => b !== balloon);
+            }, 200);
+        }
+
+        // Event listener untuk klik
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            balloons.forEach(balloon => {
+                const dist = Math.sqrt((clickX - balloon.x) ** 2 + (clickY - balloon.y) ** 2);
+                if (dist < balloon.radius) {
+                    score++;
+                    scoreElement.textContent = `(TANTANGAN : PECAHKAN 12 BALON!)Skor: ${score}`;
+                    if (score === 10) { // Diubah dari 10 ke 12
+                        explodeBalloon(balloon);
+                        gameRunning = false;
+                        // Ubah background ke hitam
+                        body.style.backgroundColor = '#000';
+                        canvas.style.backgroundColor = '#000';
+                        // Buat bintang
+                        createStars();
+                        // Munculkan musik segera (bersamaan dengan ledakan)
+                        const audio = new Audio('vita.mp3'); // Placeholder musik online; ganti dengan URL asli Anda
+                        audio.play();
+                        // Tampilkan kue dan teks
+                        celebration.style.display = 'block';
+                        // Loop untuk menggambar dan menganimasi bintang terus menerus
+                        setInterval(() => {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            drawStars();
+                        }, 50);
+                    } else {
+                        balloons = balloons.filter(b => b !== balloon);
+                    }
+                }
+            });
+        });
+
+        // Loop game
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Buat balon baru secara acak
+            if (Math.random() < 0.02) createBalloon();
+
+            // Update posisi balon
+            balloons.forEach(balloon => {
+                balloon.y += balloon.speed;
+                if (balloon.y > canvas.height) {
+                    balloons = balloons.filter(b => b !== balloon);
+                }
+                drawBalloon(balloon);
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -54,10 +54,10 @@
     </style>
 </head>
 <body>
-    <div id="score">(TANTANGAN : PECAHKAN 12 BALON!)Skor: 0</div>
+    <div id="score">Skor: 0</div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="celebration">
-        <img src="D:/ULTAH/vita.jpg" alt="Kue"> <!-- Ganti dengan URL gambar kue asli jika ada -->
+        <img src="vita.jpg" alt="Kue"> <!-- Ganti dengan URL gambar kue asli jika ada -->
         <h1>SELAMAT ULANG TAHUN🥳</h1>
         <p>Doa terbaik buat kamu sayaaang, sehat selalu yaa cowo istimewaku🤍 i love you !!😍</p>
     </div>
@@ -161,8 +161,8 @@
                 const dist = Math.sqrt((clickX - balloon.x) ** 2 + (clickY - balloon.y) ** 2);
                 if (dist < balloon.radius) {
                     score++;
-                    scoreElement.textContent = `(TANTANGAN : PECAHKAN 12 BALON!)Skor: ${score}`;
-                    if (score === 12) { // Diubah dari 10 ke 12
+                    scoreElement.textContent = `Skor: ${score}`;
+                    if (score === 10) { // Diubah dari 10 ke 12
                         explodeBalloon(balloon);
                         gameRunning = false;
                         // Ubah background ke hitam
@@ -171,7 +171,7 @@
                         // Buat bintang
                         createStars();
                         // Munculkan musik segera (bersamaan dengan ledakan)
-                        const audio = new Audio('D:/ULTAH/vita.mp3'); // Placeholder musik online; ganti dengan URL asli Anda
+                        const audio = new Audio('vita.mp3'); // Placeholder musik online; ganti dengan URL asli Anda
                         audio.play();
                         // Tampilkan kue dan teks
                         celebration.style.display = 'block';
@@ -211,3 +211,4 @@
     </script>
 </body>
 </html>
+
